@@ -1,0 +1,57 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[italian]{babel}
+
+\title{ChyberDash}
+\author{Luca Salvigni, Giuseppe Porfido, Claudio Ionut Marciuc}
+\date{November 2026}
+
+\begin{document}
+ 
+\maketitle
+
+\begin{abstract}
+CyberDash è un sistema con un'elevata usabilità che sfrutta Docker per garantire la portabilità e la modularità, che permette il controllo e l'individuazione di falle e vulnerabilità su infrastrutture di rete complesse. Per la massima performance usa Nmap come strumento di scansione periodica, nel momento in cui individua un cambio di configurazione nella rete, attiva Nikto che si occupa di controllare le specifiche porta aperte per scovare eventuali vulnerabilità, per poi creare un incident da far valutare a un'intelligenza artificiale eseguita in locale, e avvisare l'amministratore di sistema per eventuali fix.  Tutto questo per garantire la massima privacy e inespugnabilità del sistema.
+\end{abstract}
+
+
+\tableofcontents
+
+\newpage
+
+\section{Introduzione}
+\label{sec:intro}
+La progressiva digitalizzazione in tutti i campi (tech, enterprise eudcazionale) espone ogni giorno sempre di più aziende e strutture all'attacco dei cybercriminali qualora i loro sistemi non siano abbastanza protetti. Sono parecchi i tools che sono specializzati nella ricerca e nel test di vulnerabilità su reti informatiche. Questi tool sono tutti basati sul paradigma, , che porta a una frammentizzazione dei servizi e alla alta frizione psicologica nell'amministrazione di una rete. Manca quindi una strumentizzazione facile da usare, sicura, automatizzata e che possa integrare l'utilizzo di intelligenza artificiale, per gestire la sicurezza della rete. Cyberdash si pone di fare sattamente questo: Integra vari tulli contenerizzati che scamere informazioni tra loro:  
+
+\section{Tool già già esistenti}
+Il panorama attuale rivolto alla cybersecurity? Mostra come ci sono già alternative presenti sul mercato di un'idea simile a quella sviluppata. Ci sono sistemi più o meno complessi che si occupano di fare già scan su una rete. Sono i seguenti
+
+\subsection{ChyberHyghienne scan}
+ciao
+
+
+\subsection{Ciaoleo scan}
+Questo servizio, basandosi anche sulla letteratura recente, si occupa anche di integrare l'uso di intelligenza artificiale e containerizzare l'applicazione per fare in modo che ognuno dei tool che vengono utilizzati possa essere eseguito al meglio. 
+
+
+\subsection{Limiti delle architetture precedenti}
+Le architetture appena mostrate sono effettivamente ottime, ben ingegnerizzate, ma presentano caratteristiche complementari; Cyber Hygiene Scan non presenta l'uso di intelligenza artificiale. Entrambi tra l'altro sfruttano una scansione puntuale e non basata su memoria. Questi tool per lavorare al meglio devono quindi basarsi sullo stato precedente della rete per esaminare i cambiamenti ed eseguire politiche più aggressive di scan e controllo delle vulnerabilità. Questo perché la letteratura ci mostra come poco consapevole di programmi come nmap, nikto degrada molto le performance se non è ben ottimizzato per la propria rete. Se perdescio si occupa di fare proprio questa cosa. Consente di avere una memoria di stati precedenti, che viene aggiornata ogni volta che Nmap nello specifico trova un cambiamento nella rete. l'esecuzione quindi non è indisturbata,ma consapevole e attiva tool più dispendiosi di risorse solo nel momento in cui si notano cambiamenti o attività sospette sulla rete. 
+
+\section{Architettura del Sistema CyberDash}
+
+\subsection{Containerizzazione tramite Docker}
+
+\subsection{Scansione Periodica e Rilevamento Topologia (Nmap)}
+
+\subsection{Analisi Mirata delle Vulnerabilità (Nikto)}
+
+\subsection{Modulo di Valutazione Incident via LLM Locale}
+
+
+\subsection{Interfaccia Utente e Dashboard di Controllo}
+
+\section{Sviluppi futuri}
+Ci tocca implementarlo puttana eva
+
+
+\end{document}
