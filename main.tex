@@ -1,9 +1,10 @@
 \documentclass{article}
 \usepackage{graphicx} % Required for inserting images
 \usepackage[italian]{babel}
+\usepackage{url}
 
-\title{ChyberDash}
-\author{Luca Salvigni, Giuseppe Porfido, Claudio Ionut Marciuc}
+\title{CyberDash}
+\author{Giuseppe Porfido, Luca Salvigni, Claudio Marciuc}
 \date{November 2026}
 
 \begin{document}
@@ -11,7 +12,7 @@
 \maketitle
 
 \begin{abstract}
-CyberDash è un sistema con un'elevata usabilità che sfrutta Docker per garantire la portabilità e la modularità, che permette il controllo e l'individuazione di falle e vulnerabilità su infrastrutture di rete complesse. Per la massima performance usa Nmap come strumento di scansione periodica, nel momento in cui individua un cambio di configurazione nella rete, attiva Nikto che si occupa di controllare le specifiche porta aperte per scovare eventuali vulnerabilità, per poi creare un incident da far valutare a un'intelligenza artificiale eseguita in locale, e avvisare l'amministratore di sistema per eventuali fix.  Tutto questo per garantire la massima privacy e inespugnabilità del sistema.
+CyberDash è un sistema con un'elevata usabilità che sfrutta Docker per garantire la portabilità e la modularità, che permette il controllo e l'individuazione di falle e vulnerabilità su infrastrutture di rete complesse. Per la massima performance usa Nmap come strumento di scansione periodica; nel momento in cui individua un cambio di configurazione nella rete, attiva Nikto che si occupa di controllare le specifiche, porte aperte per scovare eventuali vulnerabilità, per poi creare un incident da far valutare a un'intelligenza artificiale eseguita in locale e avvisare l'amministratore di sistema per eventuali fix, in modo da intervenire tempestivamente davanti a eventuali problemi legati alla sicurezza o in un eventuale caso di attacco informatico. Tutto questo per garantire la privacy e la sicurezza del sistema.
 \end{abstract}
 
 
@@ -21,37 +22,134 @@ CyberDash è un sistema con un'elevata usabilità che sfrutta Docker per garanti
 
 \section{Introduzione}
 \label{sec:intro}
-La progressiva digitalizzazione in tutti i campi (tech, enterprise eudcazionale) espone ogni giorno sempre di più aziende e strutture all'attacco dei cybercriminali qualora i loro sistemi non siano abbastanza protetti. Sono parecchi i tools che sono specializzati nella ricerca e nel test di vulnerabilità su reti informatiche. Questi tool sono tutti basati sul paradigma, , che porta a una frammentizzazione dei servizi e alla alta frizione psicologica nell'amministrazione di una rete. Manca quindi una strumentizzazione facile da usare, sicura, automatizzata e che possa integrare l'utilizzo di intelligenza artificiale, per gestire la sicurezza della rete. Cyberdash si pone di fare sattamente questo: Integra vari tulli contenerizzati che scamere informazioni tra loro:  
+\subsection{Problema}
+La progressiva digitalizzazione in ambiti sia industriali sia accademico-aziendali espone continuamente le infrastrutture al rischio di cyberattacchi, qualora i sistemi non siano adeguatamente protetti.
+Un limite ampiamente riscontrato in letteratura è la \textit{frammentazione}: gli applicativi di sicurezza informatica, pur essendo altamente specializzati, svolgono routine molto settoriali, costringendo gli amministratori di rete a doversi muovere tra servizi disomogenei anche per un semplice controllo topologico della rete \cite{alkhunaizi_toward_2025, kumar_aipentool_2025}.
 
-\section{Tool già già esistenti}
-Il panorama attuale rivolto alla cybersecurity? Mostra come ci sono già alternative presenti sul mercato di un'idea simile a quella sviluppata. Ci sono sistemi più o meno complessi che si occupano di fare già scan su una rete. Sono i seguenti
+\subsection{Soluzione proposta}
+Manca dunque una piattaforma automatizzata, sicura e di semplice adozione che integri l'utilizzo dell'intelligenza artificiale per supportare la gestione della sicurezza di rete. \textit{CyberDash} risponde a questa esigenza orchestrando vari strumenti di scansione (quali Nmap e Nikto) containerizzati, basandosi sullo scambio informativo proattivo tra di essi.
 
-\subsection{ChyberHyghienne scan}
-ciao
+\section{Applicativi già esistenti}
+Lo stato dell'arte offre diverse alternative orientate all'automazione della sicurezza di rete. In letteratura sono stati proposti sistemi con differenti livelli di complessità dedicati alla scansione e alla valutazione delle vulnerabilità, tra cui spiccano le seguenti architetture principali:
+
+\subsection{Cyber Hygiene Scan (CHS)}
+Proposto da Chisom et al., CHS è un framework sviluppato per semplificare la gestione della sicurezza in reti istituzionali e complesse, come quelle universitarie \cite{chisom_cyberhygienescan_2025}. Il sistema espone una dashboard centrale per gli amministratori ed esegue l'orchestrazione di tool di scansione quali Nmap, OpenVAS e script dedicati tramite backend \cite{chisom_cyberhygienescan_2025}.
+
+\subsection{Centralized Solution (VulnIQ)}
+Sviluppata da Alkhunaizi et al., questa architettura presenta un'elevata ingegnerizzazione basata sui container Docker \cite{alkhunaizi_toward_2025}. Il sistema integra la generazione automatizzata di report multi-formato (inclusi PDF e XML) e sfrutta l'integrazione di un LLM locale per arricchire i risultati tecnici con sintesi e raccomandazioni ad alto livello \cite{alkhunaizi_toward_2025}.
+\begin{table}[htbp]
+
+\centering
+\caption{Confronto comparativo tra le architetture esistenti e CyberDash}
+\label{tab:comparazione_architetture}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|p{4.5cm}|p{4.5cm}|p{4.5cm}|}
+\hline
+\textbf{Caratteristica} & \textbf{Soluzione A (CHS)} & \textbf{Soluzione B (VulnIQ)} & \textbf{CyberDash (Proposto)} \\
+\hline
+\textbf{Tool Integrati} & Nmap, OpenVAS, SNMP & Nmap, Nikto, Nessus & Nmap, Nikto \\ \hline
+
+\textbf{Strategia Scansione} & Periodica di rete & Puntuale / Job-based & Incrementale con memoria di stato \\ \hline
+
+\textbf{Containerizzazione} & Docker Compose & Docker Compose & Docker Compose \\ \hline
+
+\textbf{Modulo IA} & Assente (Risk scoring CVSS) & Llama 3.1 locale (Ollama/Flask) & LLM locale quantizzato (Ollama) \\ \hline
+
+\textbf{Pre-parsing / CVE} & Mapping diretto feed OpenVAS & Normalizzazione multi-formato & Parsing XML + Matching CVE pre-prompt \\ \hline
+
+\textbf{Impatto sulla Rete} & Scansione completa periodica & Carico medio-alto su scansioni estese & Ottimizzato (Nikto attivo solo su variazioni di Nmap) \\ \hline
+
+\textbf{Dashboard e Notifiche} & Web UI (Flask/React) per IT/Admin & Web UI (AdminLTE) Tecnico/Executive & Dashboard semplificata + Notifiche proattive \\ \hline
+
+\textbf{Privacy \& Deployment} & Locale  & Locale (Server ad alte prestazioni) & Locale (Consumer-grade hardware) \\ \hline
+\end{tabular}%
+}
+\end{table}
 
 
-\subsection{Ciaoleo scan}
-Questo servizio, basandosi anche sulla letteratura recente, si occupa anche di integrare l'uso di intelligenza artificiale e containerizzare l'applicazione per fare in modo che ognuno dei tool che vengono utilizzati possa essere eseguito al meglio. 
+\subsection{Limiti delle Architetture Esistenti}
+Come evidenziato nella Tabella~\ref{tab:comparazione_architetture}, le architetture proposte da Chisom et al. \cite{chisom_cyberhygienescan_2025} e da Alkhunaizi et al. \cite{alkhunaizi_toward_2025} presentano approcci complementari ma caratterizzati da precisi limiti strutturali. Il sistema CHS non integra modelli di intelligenza artificiale per l'analisi contestuale dei rischi \cite{chisom_cyberhygienescan_2025}, mentre la soluzione VulnIQ, pur impiegando un LLM locale, si affida a scansioni esaustive puntuali che rischiano di degradare le prestazioni delle infrastrutture analizzate \cite{alkhunaizi_toward_2025}. 
 
+Come dimostrato in letteratura da Persson e Landenstad \cite{persson_explaining_2018}, l'efficacia dei sistemi di vulnerability management aumenta notevolmente quando le scansioni vengono eseguite in modo periodico, confrontando gli "snapshot" temporali della rete per isolare tempestivamente le sole variazioni topologiche.
 
-\subsection{Limiti delle architetture precedenti}
-Le architetture appena mostrate sono effettivamente ottime, ben ingegnerizzate, ma presentano caratteristiche complementari; Cyber Hygiene Scan non presenta l'uso di intelligenza artificiale. Entrambi tra l'altro sfruttano una scansione puntuale e non basata su memoria. Questi tool per lavorare al meglio devono quindi basarsi sullo stato precedente della rete per esaminare i cambiamenti ed eseguire politiche più aggressive di scan e controllo delle vulnerabilità. Questo perché la letteratura ci mostra come poco consapevole di programmi come nmap, nikto degrada molto le performance se non è ben ottimizzato per la propria rete. Se perdescio si occupa di fare proprio questa cosa. Consente di avere una memoria di stati precedenti, che viene aggiornata ogni volta che Nmap nello specifico trova un cambiamento nella rete. l'esecuzione quindi non è indisturbata,ma consapevole e attiva tool più dispendiosi di risorse solo nel momento in cui si notano cambiamenti o attività sospette sulla rete. 
+Inoltre, diversi studi \cite{gajula_evaluating_2024, jha_canvus_2010} confermano che l'uso non ottimizzato di strumenti invasivi come Nmap e Nikto causa un sensibile decadimento delle prestazioni di rete e dei server target se non guidato da meccanismi di analisi adattiva. 
+
+\textit{CyberDash} risponde a tali limitazioni introducendo un workflow basato su una memoria di stato persistente. Il sistema mantiene uno storico delle configurazioni precedenti, aggiornandolo esclusivamente quando viene rilevata una modifica della topologia di rete. Di conseguenza, l'ispezione approfondita delle vulnerabilità e la ricerca di exploit sui servizi obsoleti vengono eseguite in modo chirurgico soltanto sulle porte di nuova apertura o su quelle che presentano scostamenti rilevanti, preservando la velocità di scansione senza compromettere l'affidabilità del rilevamento.
+
+Tale impostazione si allinea con il paradigma del \textit{Continuous Threat Exposure Management} (CTEM) \cite{gartner_ctem_2023}. A differenza delle massive scansioni tradizionali fatte "a calendario" (che generano tanto rumore informativo), l'approccio CTEM controlla la rete in modo continuo. In questo modo il sistema individua subito solo i problemi realmente critici, permettendo di intervenire prima che un potenziale attacco vada a buon fine.
 
 \section{Architettura del Sistema CyberDash}
 
 \subsection{Containerizzazione tramite Docker}
+Per garantire la massima modularità, ciascun servizio viene eseguito in un container Docker isolato e comunica con gli altri componenti mediante una rete virtuale interna dedicata \cite{alkhunaizi_toward_2025, chisom_cyberhygienescan_2025}.
+
+Questa scelta architetturale soddisfa tre requisiti fondamentali:
+\begin{itemize}
+    \item \textbf{Portabilità:} il sistema può essere distribuito ed eseguito su qualsiasi ambiente che supporti Docker, eliminando la necessità di configurare manualmente le dipendenze o gestire le incompatibilità tra sistemi operativi e librerie.
+    \item \textbf{Modularità e Scalabilità:} ogni componente può essere aggiornato o sostituito in modo indipendente senza impattare il resto dell'infrastruttura; ad esempio, è possibile aggiornare la versione di Nikto o sostituire il modello LLM locale senza modificare i moduli di backend \cite{addis_llm-based_2026}.
+    \item \textbf{Isolamento e Sicurezza:} gli strumenti di scansione, generando per loro natura traffico invasivo, restano confinati all'interno di ambienti separati. Ciò riduce la superficie di attacco dell'host e previene che eventuali malfunzionamenti di un singolo tool compromettano il sistema ospitante.
+\end{itemize}
+
+
 
 \subsection{Scansione Periodica e Rilevamento Topologia (Nmap)}
+Il primo livello operativo di \textit{CyberDash} è affidato a Nmap, scelto per la sua elevata affidabilità e diffusione nella comunità legata alla sicurezza informatica come strumento per l'enumerazione di rete e il rilevamento dei servizi \cite{kashyap_learning_2021, singh_eagle_2021}.
+Il modulo esegue scansioni periodiche sulla rete per tracciare la mappa delle porte attive e dello stato dei servizi. Piuttosto che limitarsi alla semplice raccolta dei log, il sistema salva ogni report ed effettua un confronto differenziale (\textit{snapshot comparison}) con la scansione precedente \cite{corcoran_post-scan_2000, persson_explaining_2018}. 
+
+Qualora l'algoritmo di confronto identifichi variazioni topologiche — come l'apertura di nuove porte o la modifica dei servizi esposti — il modulo inoltra una segnalazione puntuale al backend, specificando con precisione gli host e i port coinvolti, innescando l'intervento mirato dei moduli di analisi delle vulnerabilità di livello superiore (quali Nikto) \cite{gajula_evaluating_2024}. 
+
+Al contrario, nel caso in cui non vengano riscontrati scostamenti rispetto allo stato precedente, il sistema si limita ad aggiornare lo storico temporale. In questo modo si azzerano i controlli ridondanti, mantenendo basso il carico sulla rete e riducendo l'impatto prestazionale sugli host target \cite{jha_canvus_2010}.
 
 \subsection{Analisi Mirata delle Vulnerabilità (Nikto)}
+Dal momento in cui Nmap identifica una variazione di stato o l'apertura di nuove porte, Nikto riceve dal backend l'host e la porta su cui effettuarne una scansione più approfondita e procede con una analisi più dettagliata; a differenza dei tool di ricognizione pura, Nikto non si occupa solo di determinare quale servizio è attivo su quella determinata porta, ma verifica anche la presenza di configurazioni errate (\textit{misconfigurations}), file e directory esposti, componenti obsoleti, intestazioni HTTP non sicure e vulnerabilità note associate ai servizi individuati.
+Tuttavia, come evidenziato in letteratura, Nikto è uno strumento altamente invasivo ed oneroso in termini di risorse computazionali e di rete \cite{gajula_evaluating_2024, samgir_automated_2024}.
+L'esecuzione di scansioni indiscriminate su un'intera infrastruttura genera una quantità elevata di traffico facilmente rilevabile dai sistemi di difesa (IDS/IPS) e rischia di degradare sensibilmente le prestazioni dei server target. 
+Per questo CyberDash vincola l'esecuzione esclusivamente ai target e alle porte che hanno registrato una variazione, e lo indirizza esclusivamente agli host e alle porte coinvolti nel cambiamento, non all’intera rete, preservando al contempo la stabilità operativa dell'intera infrastruttura di rete \cite{kumar_aipentool_2025}.
+
+
+
+
+\subsection{Parsing delle informazioni e controllo database CVE}
+
+Uno dei requisiti fondamentali di CyberDash è l'esecuzione interamente in locale per garantire la massima privacy e sicurezza del sistema. Questo vincolo architetturale implica che l'applicativo debba poter essere eseguito in modo efficiente su computer con risorse hardware ``nella media'' (macchine consumer-grade), precludendo di fatto l'utilizzo di Large Language Models (LLM) di dimensioni massive che richiederebbero cluster GPU dedicati.
+
+Per mantenere il sistema accessibile, CyberDash si affida a modelli IA di dimensioni ridotte (es. modelli quantizzati da pochi miliardi di parametri). Tuttavia, l'uso di modelli più piccoli introduce una criticità: questi modelli faticano a isolare le informazioni rilevanti dal rumore di fondo. Il rischio diretto è l'aumento di "allucinazioni" da parte del modello e una proliferazione di falsi positivi.
+Per aggirare questo limite hardware e massimizzare l'affidabilità, CyberDash implementa una fase di \textit{parsing strutturato} antecedente all'intervento dell'IA. Il flusso logico si articola come segue:
+
+\begin{enumerate}
+    \item \textbf{Estrazione e Normalizzazione:} Il backend intercetta i risultati di Nikto in formati strutturati (XML), estraendo esclusivamente le variabili chiave (versioni dei servizi, path esposti, potenziali codici di vulnerabilità).
+    \item \textbf{Arricchimento tramite CVE:} I dati estratti vengono confrontati (tramite script Python nel backend) con un database CVE (Common Vulnerabilities and Exposures) così da valutare le criticità
+    \item \textbf{Iniezione del Prompt:} L'IA locale non riceve il log del terminale, ma un blocco dati pre-digerito, pulito e standardizzato.
+\end{enumerate}
+
+In questo modo, il compito del modello linguistico viene semplificato, ma si limita ad analizzare un set di vulnerabilità già verificate per stilare un \textit{incident report} contestualizzato. 
+
+
+
+
 
 \subsection{Modulo di Valutazione Incident via LLM Locale}
+Una volta che il backend ha strutturato il pacchetto di informazioni servendosi del database con le vulnerabilità tramite apposite API pubbliche, il backend sintetizza le informazioni in un pacchetto strutturato denominato \textit{"incident"}. 
+Questo per fornire al modello linguistico un contesto pulito e delimitato, riducendo il rumore informativo ed evitando i fenomeni di allucinazione tipici dei modelli generativi quando applicati a log non strutturati \cite{addis_llm-based_2026, wu_autopt_2025}.
+
+Il modello stesso risiede in un container, eseguito tramite il framework di inferenza Ollama. che aspetta le informazioni dal backend da elaborare. Una volta che il modello completa la richiesta, restituisce un report sintetico contenente la spiegazione delle vulnerabilità individuate, la valutazione del livello di severità e i suggerimenti operativi per la mitigazione. L'output generato viene infine inviato all'interfaccia utente per la visualizzazione all'interno della dashboard di controllo.
+
 
 
 \subsection{Interfaccia Utente e Dashboard di Controllo}
+L'ultimo componente di CyberDash è l'interfaccia web, pensata per ridurre la frizione cognitiva legata all'amministrazione del sistema. Gli strumenti di sicurezza informatica tradizionali generalmente producono output tecnici, verbosi e frammentati, comprensibili solo a chi ha una solida formazione specialistica.
 
-\section{Sviluppi futuri}
-Ci tocca implementarlo puttana eva
+CyberDash adotta l'approccio opposto: le informazioni vengono presentate in modo chiaro, ordinato e immediato, così da risultare facilmente fruibili anche da un utente privo di competenze approfondite in cybersecurity.
 
+La dashboard offre una vista unificata sullo stato dell'infrastruttura, l'utente può visualizzare a colpo d'occhio lo stato corrente degli host e dei servizi, consultare lo storico dei cambiamenti rilevati nel tempo e accedere all'elenco degli incident. Ogni incident è accompagnato da un livello di gravità e dalla valutazione prodotta dall'LLM locale con suggerimenti pratici per la risoluzione. In questo modo l'utente non deve interpretare dati grezzi, ma riceve indicazioni comprensibili su cosa è successo, quanto è grave e cosa fare.
+
+A completare l'interfaccia è previsto un servizio di notifica. Quando viene generato un \textit{incident} che supera una soglia di gravità configurabile, il sistema invia automaticamente un messaggio contenente un avviso sintetico contenente gli host coinvolti, la valutazione del modello e un collegamento diretto alla dashboard. Tale meccanismo evita la necessità di un monitoraggio continuo da parte dell'amministratore, garantendo un intervento solo in presenza di criticità rilevanti e limitando al contempo il fenomeno dell'affaticamento da notifiche (\textit{alert fatigue}).
+
+\newpage
+
+
+
+\bibliographystyle{plain}
+\bibliography{Bibliografia_cyberdash}
 
 \end{document}
