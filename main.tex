@@ -148,6 +148,74 @@ A completare l'interfaccia è previsto un servizio di notifica. Quando viene gen
 \newpage
 
 
+\section{Requisiti Funzionali}
+I requisiti funzionali definiscono cosa deve fare il sistema e come devono interagire i suoi moduli.
+
+\subsection{Modulo Scansione Periodica e Rilevamento Topologia (Nmap)}
+\begin{itemize}
+    \item Il sistema deve eseguire scansioni periodiche sulla rete per individuare le porte aperte e i servizi attivi tramite Nmap.
+    \item Il sistema deve salvare un report di ogni scansione per fare un confronto con lo stato precedente (snapshot comparison).
+    \item Il sistema deve inviare una segnalazione al backend solo se individua un cambio di configurazione nella rete (es. apertura di nuove porte).
+\end{itemize}
+
+\subsection{Modulo Analisi Mirata delle Vulnerabilità (Nikto)}
+\begin{itemize}
+    \item Il sistema deve attivare Nikto solo in presenza di una variazione rilevata da Nmap.
+    \item Nikto deve analizzare unicamente l'host e la porta coinvolti nel cambiamento, evitando scansioni su tutta la rete.
+    \item Il modulo deve verificare configurazioni errate, file o directory esposte e componenti obsoleti.
+\end{itemize}
+
+\subsection{Parsing delle Informazioni e Controllo Database CVE}
+\begin{itemize}
+    \item Il backend deve estrarre le informazioni dai log XML di Nikto (versioni dei servizi, path esposti, vulnerabilità).
+    \item Il sistema deve confrontare i dati estratti con un database CVE per valutare la gravità dei problemi rilevati.
+    \item Il backend deve pulire e strutturare i dati in un pacchetto "incident" prima di inviarli al modello IA.
+\end{itemize}
+
+\subsection{Modulo di Valutazione Incident via LLM Locale}
+\begin{itemize}
+    \item Il modello linguistico (LLM) deve essere eseguito in locale all'interno di un container tramite Ollama.
+    \item L'IA deve analizzare l'incident fornito dal backend ed elaborare un report sintetico spiegando la vulnerabilità trovata.
+    \item L'IA deve attribuire un livello di gravità e fornire consigli pratici per risolvere il problema.
+\end{itemize}
+
+\subsection{Interfaccia Utente e Dashboard di Controllo}
+\begin{itemize}
+    \item La dashboard web deve mostrare lo stato corrente degli host di rete e l'elenco degli incident.
+    \item L'utente deve poter consultare lo storico dei cambiamenti rilevati nel tempo.
+    \item Il sistema deve inviare una notifica automatica all'amministratore solo quando un incident supera una soglia di gravità prefissata.
+\end{itemize}
+
+
+\section{Requisiti Non Funzionali}
+I requisiti non funzionali definiscono le qualità del sistema e i vincoli di progettazione.
+
+\subsection{Sicurezza e Privacy}
+\begin{itemize}
+    \item Ogni componente del sistema deve essere eseguito in un container Docker isolato per ridurre la superficie di attacco.
+    \item L'intero sistema e l'LLM devono funzionare esclusivamente in locale per garantire la privacy dei dati di rete.
+    \item Il backend deve pulire i dati prima di mandarli all'IA per evitare attacchi di tipo prompt injection.
+\end{itemize}
+
+\subsection{Prestazioni}
+\begin{itemize}
+    \item L'uso di Nikto deve essere limitato solo alle variazioni di rete per non sovraccaricare il traffico o rallentare i server target.
+    \item Il sistema deve poter funzionare in modo efficiente su computer standard (hardware consumer-grade) usando modelli IA di ridotte dimensioni.
+\end{itemize}
+
+\subsection{Portabilità e Modularità}
+\begin{itemize}
+    \item Il sistema deve usare Docker Compose per poter essere installato facilmente su qualsiasi sistema operativo.
+    \item Ciascun modulo (Nmap, Nikto, LLM, Dashboard) deve poter essere aggiornato o sostituito in modo indipendente dagli altri.
+\end{itemize}
+
+\subsection{Usabilità}
+\begin{itemize}
+    \item La dashboard deve mostrare le informazioni in modo chiaro senza costringere l'utente a interpretare log tecnici grezzi.
+    \item Il sistema di notifica deve evitare l'invio continuo di messaggi non critici per prevenire l'affaticamento da avvisi (alert fatigue).
+\end{itemize}
+
+
 
 \bibliographystyle{plain}
 \bibliography{Bibliografia_cyberdash}
