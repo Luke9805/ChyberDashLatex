@@ -147,73 +147,78 @@ A completare l'interfaccia è previsto un servizio di notifica. Quando viene gen
 
 \newpage
 
+\section{Introduzione}
+Questo documento definisce i requisiti funzionali e non funzionali della piattaforma \textbf{CyberDash}, formulati secondo le linee guida dello standard ISO/IEC/IEEE 29148 e del modello di qualità ISO/IEC 25010.
+
+\subsection{Stakeholder}
+\begin{itemize}
+    \item \textbf{Amministratore di Rete:} monitora lo stato dell'infrastruttura, gestisce le configurazioni, consulta gli incident e applica le mitigazioni.
+    \item \textbf{Sviluppatori e Manutentori:} implementano e aggiornano i singoli moduli del sistema.
+    \item \textbf{Responsabile della Sicurezza:} definisce i vincoli di isolamento, controllo accessi e privacy dei dati.
+\end{itemize}
 
 \section{Requisiti Funzionali}
-I requisiti funzionali definiscono cosa deve fare il sistema e come devono interagire i suoi moduli.
+I requisiti funzionali sono articolati in Requisiti Utente (\textbf{RU}), che esprimono gli obiettivi dell'utilizzatore, e Requisiti di Sistema (\textbf{RS}), che specificano le operazioni tecniche del software.
 
-\subsection{Modulo Scansione Periodica e Rilevamento Topologia (Nmap)}
+\subsection{Rilevamento Topologico e Scansione Vulnerabilità}
 \begin{itemize}
-    \item Il sistema deve eseguire scansioni periodiche sulla rete per individuare le porte aperte e i servizi attivi tramite Nmap.
-    \item Il sistema deve salvare un report di ogni scansione per fare un confronto con lo stato precedente (snapshot comparison).
-    \item Il sistema deve inviare una segnalazione al backend solo se individua un cambio di configurazione nella rete (es. apertura di nuove porte).
+    \item \textbf{RU-1:} L'amministratore deve essere avvisato automaticamente quando emergono nuove vulnerabilità a seguito di modifiche nella rete.
+    \begin{itemize}
+        \item \textbf{RS-1.1:} Il sistema deve eseguire scansioni periodiche della rete tramite Nmap (con rilevamento versioni dei servizi) secondo un intervallo configurabile.
+        \item \textbf{RS-1.2:} Il sistema deve salvare ogni scansione come snapshot e confrontarla con lo snapshot precedente per rilevare nuove porte aperte o variazioni nei servizi.
+        \item \textbf{RS-1.3:} In assenza di variazioni topologiche, il sistema deve aggiornare lo storico e saltare le analisi di approfondimento (Nikto e LLM), mantenendo attiva la pianificazione periodica di Nmap.
+        \item \textbf{RS-1.4:} Al rilevamento di una variazione su una porta aperta, il sistema deve avviare una scansione mirata tramite Nikto esclusivamente qualora il servizio rilevato da Nmap sia di tipo Web (HTTP/HTTPS); per servizi non Web, l'anomalia deve essere inoltrata direttamente al modulo di analisi CVE.
+    \end{itemize}
 \end{itemize}
 
-\subsection{Modulo Analisi Mirata delle Vulnerabilità (Nikto)}
+\subsection{Analisi CVE e Valutazione tramite LLM}
 \begin{itemize}
-    \item Il sistema deve attivare Nikto solo in presenza di una variazione rilevata da Nmap.
-    \item Nikto deve analizzare unicamente l'host e la porta coinvolti nel cambiamento, evitando scansioni su tutta la rete.
-    \item Il modulo deve verificare configurazioni errate, file o directory esposte e componenti obsoleti.
+    \item \textbf{RU-2:} L'amministratore deve ricevere una spiegazione chiara delle vulnerabilità rilevate con relative indicazioni operative per la risoluzione.
+    \begin{itemize}
+        \item \textbf{RS-2.1:} Il sistema deve estrarre dall'output XML di Nikto (se eseguito) e dal report di Nmap le versioni dei servizi, i percorsi esposti e i codici delle anomalie.
+        \item \textbf{RS-2.2:} Il sistema deve correlare le versioni dei servizi e le anomalie estratte con un database CVE per determinare la severità di ciascuna vulnerabilità.
+        \item \textbf{RS-2.3:} Il sistema deve inviare i dati normalizzati e arricchiti (pacchetto \textit{incident}) al modello linguistico locale (LLM) gestito tramite Ollama.
+        \item \textbf{RS-2.4:} Il modulo LLM deve produrre un report testuale contenente descrizione del rischio, livello di criticità e azioni di mitigazione.
+    \end{itemize}
 \end{itemize}
 
-\subsection{Parsing delle Informazioni e Controllo Database CVE}
+\subsection{Dashboard, Accesso e Notifiche}
 \begin{itemize}
-    \item Il backend deve estrarre le informazioni dai log XML di Nikto (versioni dei servizi, path esposti, vulnerabilità).
-    \item Il sistema deve confrontare i dati estratti con un database CVE per valutare la gravità dei problemi rilevati.
-    \item Il backend deve pulire e strutturare i dati in un pacchetto "incident" prima di inviarli al modello IA.
+    \item \textbf{RU-3:} L'amministratore deve poter consultare in sicurezza lo stato corrente e storico della rete da un'unica interfaccia.
+    \begin{itemize}
+        \item \textbf{RS-3.1:} La dashboard web deve richiedere l'autenticazione tramite credenziali cifrate prima di consentire l'accesso ai dati o la modifica delle soglie di sistema.
+        \item \textbf{RS-3.2:} La dashboard web deve visualizzare lo stato aggiornato degli host, le porte attive, lo storico delle variazioni e l'elenco degli incident con i relativi report.
+        \item \textbf{RS-3.3:} Il sistema deve inviare una notifica automatica all'amministratore al superamento di una soglia di severità configurabile.
+    \end{itemize}
 \end{itemize}
-
-\subsection{Modulo di Valutazione Incident via LLM Locale}
-\begin{itemize}
-    \item Il modello linguistico (LLM) deve essere eseguito in locale all'interno di un container tramite Ollama.
-    \item L'IA deve analizzare l'incident fornito dal backend ed elaborare un report sintetico spiegando la vulnerabilità trovata.
-    \item L'IA deve attribuire un livello di gravità e fornire consigli pratici per risolvere il problema.
-\end{itemize}
-
-\subsection{Interfaccia Utente e Dashboard di Controllo}
-\begin{itemize}
-    \item La dashboard web deve mostrare lo stato corrente degli host di rete e l'elenco degli incident.
-    \item L'utente deve poter consultare lo storico dei cambiamenti rilevati nel tempo.
-    \item Il sistema deve inviare una notifica automatica all'amministratore solo quando un incident supera una soglia di gravità prefissata.
-\end{itemize}
-
 
 \section{Requisiti Non Funzionali}
-I requisiti non funzionali definiscono le qualità del sistema e i vincoli di progettazione.
 
-\subsection{Sicurezza e Privacy}
+\subsection{Requisiti di Prodotto}
 \begin{itemize}
-    \item Ogni componente del sistema deve essere eseguito in un container Docker isolato per ridurre la superficie di attacco.
-    \item L'intero sistema e l'LLM devono funzionare esclusivamente in locale per garantire la privacy dei dati di rete.
-    \item Il backend deve pulire i dati prima di mandarli all'IA per evitare attacchi di tipo prompt injection.
+    \item \textbf{RNF-1 (Efficienza prestazionale):} L'elaborazione di un singolo pacchetto \textit{incident} da parte del modello LLM locale deve completarsi entro 60 secondi su hardware consumer-grade dotato di almeno 16 GB di RAM.
+    \item \textbf{RNF-2 (Efficienza prestazionale):} La dashboard web deve caricare la vista principale entro 2 secondi nel 95\% delle richieste.
+    \item \textbf{RNF-3 (Capacità di interazione):} Un amministratore al primo utilizzo deve poter individuare un incident e le relative istruzioni di mitigazione entro 1 minuto senza consultare manuali tecnici.
+    \item \textbf{RNF-4 (Sicurezza - Privacy):} Tutte le scansioni, i log e le inferenze del modello LLM devono essere eseguiti interamente in locale (on-premise), senza trasmettere dati a servizi cloud esterni.
+    \item \textbf{RNF-5 (Sicurezza - Isolamento):} Le comunicazioni applicative interne tra backend, modello LLM e archivio dati devono avvenire su una rete virtuale Docker isolata dall'esterno, mentre i moduli di scansione (Nmap e Nikto) devono avere accesso verso l'esterno limitato esclusivamente alle sottoreti target configurate.
+    \item \textbf{RNF-6 (Affidabilità):} In caso di arresto anomalo di un container di scansione, il sistema deve riavviarlo automaticamente entro 10 secondi senza perdita dello storico salvato.
+    \item \textbf{RNF-7 (Flessibilità / Portabilità):} L'intera piattaforma deve essere distribuita tramite Docker Compose ed eseguibile senza modifiche al codice su sistemi Linux e Windows con motore Docker attivo.
+    \item \textbf{RNF-8 (Manutenibilità):} Ogni componente (Nmap, Nikto, backend, LLM, dashboard) deve risiedere in un container indipendente per consentirne l'aggiornamento o la sostituzione senza impattare gli altri moduli.
 \end{itemize}
 
-\subsection{Prestazioni}
+\subsection{Requisiti Organizzativi}
 \begin{itemize}
-    \item L'uso di Nikto deve essere limitato solo alle variazioni di rete per non sovraccaricare il traffico o rallentare i server target.
-    \item Il sistema deve poter funzionare in modo efficiente su computer standard (hardware consumer-grade) usando modelli IA di ridotte dimensioni.
+    \item \textbf{RNF-9 (Sviluppo e Distribuzione):} Il sistema deve essere rilasciato mediante containerizzazione Docker e file dichiarativo Docker Compose per consentire il deployment automatizzato in ambiente istituzionale o aziendale.
 \end{itemize}
 
-\subsection{Portabilità e Modularità}
+\subsection{Requisiti Esterni}
 \begin{itemize}
-    \item Il sistema deve usare Docker Compose per poter essere installato facilmente su qualsiasi sistema operativo.
-    \item Ciascun modulo (Nmap, Nikto, LLM, Dashboard) deve poter essere aggiornato o sostituito in modo indipendente dagli altri.
+    \item \textbf{RNF-10 (Conformità normativa - GDPR):} Lo storico delle scansioni deve memorizzare esclusivamente metadati tecnici di rete (IP, porte, versioni dei servizi), escludendo qualsiasi payload di traffico utente, e applicare una rotazione automatica con cancellazione dei log più vecchi di 90 giorni.
 \end{itemize}
 
-\subsection{Usabilità}
-\begin{itemize}
-    \item La dashboard deve mostrare le informazioni in modo chiaro senza costringere l'utente a interpretare log tecnici grezzi.
-    \item Il sistema di notifica deve evitare l'invio continuo di messaggi non critici per prevenire l'affaticamento da avvisi (alert fatigue).
-\end{itemize}
+
+\newpage
+
 
 
 
